@@ -16,26 +16,27 @@ Grafo::Grafo( const string& file ) {
       bool resultado = value[0] == '0' || value[0] == '1';
 
       if ( !resultado ) {
-        this->size_ = int(value[0]) - 48;
+        int sizeFormatted = 
+        this->size_ = this->changeCharToInt(value[0]);
         this->adj_ = new std::list<int>[this->size_];
         continue;
       };
 
-      std::vector<char> line;
+      std::vector<int> line;
 
       for ( int i = 0; i < value.length(); ++i ) {
         if ( value[i] == ' ') continue;
-        line.push_back(value[i]);
+        line.push_back( this->changeCharToInt(value[i]) );
       }
 
-      this->matrix_.push_back(line);
+      this->matrix_.push_back( line );
     }
 
 
     for ( int i = 0; i < this->getSize(); ++ i ) {
       for ( int j = 0; j < this->getSize(); ++j ) {
-        if ( this->matrix_[i][j] == '1') {
-          this->adj_[i].push_back(j+1);
+        if ( this->matrix_[i][j] == 1) {
+          this->adj_[i].push_back( j );
         }
       }
     }
@@ -43,11 +44,15 @@ Grafo::Grafo( const string& file ) {
   }
 }
 
-void Grafo::dfs( const int& edge ) {
-  std::cout << "entrou aqui" << this->adj_[edge].size() << std::endl;
+void Grafo::dfs( const int& vertice, std::vector<int>& visited ) {
+  visited.push_back( vertice );
 
-  for ( int edges : this->adj_[edge] ) {
-    std::cout << "vertices: " << edges << std::endl;
+  std::cout << "visitado: " << vertice << std::endl;
+
+  for ( int edges : this->adj_[vertice] ) {
+    if ( !(std::find(visited.begin(), visited.end(), edges) != visited.end()) ) {
+      this->dfs(edges, visited);
+    }
   }
 }
 
@@ -70,4 +75,8 @@ void Grafo::showMatrix( void ) {
 
 inline int Grafo::getSize( void ) const {
   return this->size_;
+}
+
+int Grafo::changeCharToInt( const char& ch ) {
+  return int(ch) - 48;
 }
