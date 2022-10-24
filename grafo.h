@@ -14,6 +14,7 @@ class Grafo {
     inline int getSize( void ) const;
 
     void dfs( const int& vertice );
+    void bfs( const int& vertice );
     void showMatrix( void );
     void showAdjacency( const int& edge );
 
