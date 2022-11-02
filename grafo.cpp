@@ -6,7 +6,7 @@ Grafo::Grafo( void ) {
 }
 
 Grafo::Grafo( const string& file ) {
-   std::ifstream text("arquivo.txt");
+   std::ifstream text(file);
 
   if ( text.is_open() ) {
     std::string value;
@@ -21,11 +21,11 @@ Grafo::Grafo( const string& file ) {
         continue;
       };
 
-      std::vector<char> line;
+      std::vector<int> line;
 
       for ( int i = 0; i < value.length(); ++i ) {
         if ( value[i] == ' ') continue;
-        line.push_back(value[i]);
+        line.push_back(value[i]-48);
       }
 
       this->matrix_.push_back(line);
@@ -34,7 +34,7 @@ Grafo::Grafo( const string& file ) {
 
     for ( int i = 0; i < this->getSize(); ++ i ) {
       for ( int j = 0; j < this->getSize(); ++j ) {
-        if ( this->matrix_[i][j] == '1') {
+        if ( this->matrix_[i][j] == 1) {
           this->adj_[i].push_back(j);
         }
       }
@@ -52,9 +52,6 @@ void Grafo::dfs( const int& edge ) {
 
 void Grafo::bfs( const int& edge ) {
   
-
-  cout<< this->size_<<std::endl;
-
   std::queue<int> fila;
   int Times[this->size_] = {0};
   int Nivel[this->size_] = {0};
@@ -64,6 +61,7 @@ void Grafo::bfs( const int& edge ) {
   fila.push(edge);
   
   Times[edge] = time;
+
   int v = 0 ;
 
   std::ofstream f_out;
@@ -73,51 +71,101 @@ void Grafo::bfs( const int& edge ) {
   else 
     cout << "Arquivo criado!"<< std::endl;
 
-  f_out << "nodedef>name VARCHAR,label VARCHAR"<< std::endl;
-  for (int i = 0; i < this->size_; i++){
-    f_out << i+1 <<','<<  i+1 <<std::endl;
-  }
-  
-
-  f_out << "edgedef>node1 VARCHAR,node2 VARCHAR,directed BOOLEAN,color VARCHAR"<< std::endl;
-
   while (!fila.empty()){
     v = fila.front();
     fila.pop();
 
     for ( int edges : this->adj_[v] ) {
       if (Times[edges] == 0){
-        Pai[edges] = v;
-        Nivel[edges] = Nivel[v] + 1;
+        if (this->matrix_[v][edges] == 1){
+          this->matrix_[v][edges] = 2;
+          this->matrix_[edges][v] = 2;
+        }
+        
+        fila.push(edges);
         time = time + 1;
         Times[edges] = time;
-        fila.push(edges);
-        f_out << v+1 <<','<< edges+1 <<",false"<<",'0,0,255'"<< std::endl;
       }else{
-        if (Nivel[v]== Nivel[edges] ){
-          if (Pai[v] == Pai[edges]){
-            f_out << v+1 <<','<< edges+1 <<",false"<<",'255,0,0'"<< std::endl;
+        if (Nivel[v] == Nivel[edges]){
+          if(Pai[v] == Pai[edges]){
+            if (this->matrix_[v][edges] == 1){
+              this->matrix_[v][edges] = 3;
+              this->matrix_[edges][v] = 3;
+            }
           }else{
-            f_out << v+1 <<','<< edges+1 <<",false"<<",'0,255,255'"<< std::endl;
+            if (this->matrix_[v][edges] == 1){
+              this->matrix_[v][edges] = 4;
+              this->matrix_[edges][v] = 4;
+            }
           }
+          
         }else{
-          if (Nivel[v] == Nivel[edge]+1 ){
-            f_out << v+1 <<','<< edges+1 <<",false"<<",'0,255,0'"<< std::endl;
+          if (Nivel[edges] == Nivel[v]+1){
+            if (this->matrix_[v][edges] == 1){
+              this->matrix_[v][edges] = 5;
+              this->matrix_[edges][v] = 5;
+            }
           }
         }
       }
     }
   }
+  f_out << "nodedef>name VARCHAR,label VARCHAR"<< std::endl;
+
+  for (int i = 0; i < this->size_; i++){
+   f_out << i+1 <<','<<  i+1 <<std::endl;
+  }
+  f_out << "edgedef>node1 VARCHAR,node2 VARCHAR,directed BOOLEAN,color VARCHAR"<< std::endl;
+
+
+  for (int i = 0; i < this->getSize(); i++){
+    for (int j = i; j < this->getSize(); j++){
+      if (this->matrix_[i][j] == 2){
+        f_out << i+1 <<','<< j+1 <<",false"<<",'0,0,255'"<< std::endl;
+        this->matrix_[i][j] = 1;
+        this->matrix_[j][i] = 1;
+      }
+      if (this->matrix_[i][j] == 3){
+        f_out << i+1 <<','<< j+1 <<",false"<<",'255,0,0'"<< std::endl;
+        this->matrix_[i][j] = 1;
+        this->matrix_[j][i] = 1;
+      }
+      if (this->matrix_[i][j] == 4){
+        f_out << i+1 <<','<< j+1 <<",false"<<",'0,255,255'"<< std::endl;
+        this->matrix_[i][j] = 1;
+        this->matrix_[j][i] = 1;
+      }
+      if (this->matrix_[i][j] == 5){
+        f_out << i+1 <<','<< j+1 <<",false"<<",'0,255,0'"<< std::endl;
+        this->matrix_[i][j] = 1;
+        this->matrix_[j][i] = 1;
+      }
+    }
+  }
+  
+
 }  
 
 
 void Grafo::showAdjacency( const int& edge ) {
   
-  for ( int edges : this->adj_[edge] ) {
-    std::cout << "vertices: " << edges << std::endl;
-  }
+  std::cout << "vertice: " << edge << " => ";
+    for ( int edges : this->adj_[edge] ) {
+    std::cout << edges << " ";
+    }
+  std::cout << std::endl;
+
 }
 
+void Grafo::showAdjacency( void ) {
+  for (int i = 0; i < this->getSize(); i++){
+    std::cout << "vertice: " << i << " => ";
+    for ( int edges : this->adj_[i] ) {
+    std::cout << edges << " ";
+    }
+  std::cout << std::endl;
+  }
+}
 
 void Grafo::showMatrix( void ) {
   for ( int i = 0; i < this->size_; i++ ) {

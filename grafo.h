@@ -16,10 +16,11 @@ class Grafo {
     void dfs( const int& vertice );
     void bfs( const int& vertice );
     void showMatrix( void );
+    void showAdjacency( void );
     void showAdjacency( const int& edge );
 
   private:
     int size_;
-    std::vector<std::vector<char>> matrix_;
+    std::vector<std::vector<int>> matrix_;
     std::list<int>* adj_;
 };
