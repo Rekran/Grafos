@@ -18,6 +18,7 @@ class Grafo {
     void showMatrix( void );
     void showAdjacency( void );
     void showAdjacency( const int& edge );
+    void busca( const int& edge, int* PE, int* PS, int* Pai );
 
   private:
     int size_;

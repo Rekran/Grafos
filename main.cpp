@@ -3,9 +3,13 @@
 
 int main() {
 
-    Grafo test = Grafo("arquivo.txt");
+    Grafo test = Grafo("graph_2.txt");
     
-//    test.bfs(0);
+   test.bfs(0);
+
+    // test.showAdjacency();
+
+    // test.showMatrix();
 
    test.dfs(0);
 

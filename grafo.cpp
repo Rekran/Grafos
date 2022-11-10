@@ -43,6 +43,32 @@ Grafo::Grafo( const string& file ) {
   }
 }
 
+void Grafo::busca( const int& v, int* PE, int* PS, int* Pai ) {
+  static int time = time + 1;
+  PE[v] = time;
+
+  for ( int edges : this->adj_[v] ) {
+    if ( PE[edges] == 0 ) {
+      if ( this->matrix_[v][edges] == 1 ) {
+        this->matrix_[v][edges] = 2;
+        this->matrix_[edges][v] = 2;
+      }
+      Pai[edges] = v;
+      busca( edges, PE, PS, Pai );
+    }else {
+      if ( PS[edges] == 0 && edges != Pai[v] ) {
+        if ( this->matrix_[v][edges] == 1 ) {
+          this->matrix_[v][edges] = 3;
+          this->matrix_[edges][v] = 3;
+        }
+      }
+    }
+  }
+
+  time = time + 1;
+  PS[v] = time;
+}
+
 void Grafo::dfs( const int& edge ) {
   std::stack<int> pilha;
 
@@ -55,14 +81,15 @@ void Grafo::dfs( const int& edge ) {
   }
 
   for ( int i = 0; i < this->size_; ++i ) {
+    Profunidade_saida[i] = 0;
+  }
+
+  for ( int i = 0; i < this->size_; ++i ) {
     Pai[i] = 0;
   }
 
   int v = 0;
-
-  int time = time + 1;
-
-  Profunidade_entrada[edge] = time;
+  int time = 0;
 
   pilha.push(edge);
 
@@ -73,31 +100,7 @@ void Grafo::dfs( const int& edge ) {
   else 
     cout << "Arquivo criado!"<< std::endl;
 
-  while ( !pilha.empty() ) {
-    v = pilha.top();
-
-    pilha.pop();
-
-    for ( int edges : this->adj_[v] ) {
-      if ( Profunidade_entrada[edges] == 0 ) {
-        if ( this->matrix_[v][edges] == 1 ) {
-          Pai[edge] = v;
-          this->matrix_[v][edges] = 2;
-          this->matrix_[edges][v] = 2;
-          pilha.push( edge );
-        }else {
-          if ( Profunidade_saida[edges] == 0 && edges != Pai[v] ) {
-            if ( this->matrix_[edges][v] == 1 ) {
-              this->matrix_[v][edges] = 3;
-              this->matrix_[edges][v] = 3;
-            }
-          }
-        }
-      }
-    }
-    time = time + 1;
-    Profunidade_saida[v] = time;
-  }
+  this->busca( edge, Profunidade_entrada, Profunidade_saida, Pai );
 
   f_out << "nodedef>name VARCHAR,label VARCHAR"<< std::endl;
 
