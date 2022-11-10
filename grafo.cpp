@@ -1,5 +1,6 @@
 #include "grafo.h"
 #include <queue>
+#include <stack>
 
 Grafo::Grafo( void ) {
 
@@ -43,19 +44,103 @@ Grafo::Grafo( const string& file ) {
 }
 
 void Grafo::dfs( const int& edge ) {
-  std::cout << "entrou aqui" << this->adj_[edge].size() << std::endl;
+  std::stack<int> pilha;
 
-  for ( int edges : this->adj_[edge] ) {
-    std::cout << "vertices: " << edges << std::endl;
+  int Profunidade_entrada[this->size_];
+  int Profunidade_saida[this->size_];
+  int Pai[this->size_];
+
+  for ( int i = 0; i < this->size_; ++i ) {
+    Profunidade_entrada[i] = 0;
+  }
+
+  for ( int i = 0; i < this->size_; ++i ) {
+    Pai[i] = 0;
+  }
+
+  int v = 0;
+
+  int time = time + 1;
+
+  Profunidade_entrada[edge] = time;
+
+  pilha.push(edge);
+
+  std::ofstream f_out;
+  f_out.open("teste.gdf");
+  if(! f_out.good())
+    cout << "Falha ao criar o arquivo!"<< std::endl;
+  else 
+    cout << "Arquivo criado!"<< std::endl;
+
+  while ( !pilha.empty() ) {
+    v = pilha.top();
+
+    pilha.pop();
+
+    for ( int edges : this->adj_[v] ) {
+      if ( Profunidade_entrada[edges] == 0 ) {
+        if ( this->matrix_[v][edges] == 1 ) {
+          Pai[edge] = v;
+          this->matrix_[v][edges] = 2;
+          this->matrix_[edges][v] = 2;
+          pilha.push( edge );
+        }else {
+          if ( Profunidade_saida[edges] == 0 && edges != Pai[v] ) {
+            if ( this->matrix_[edges][v] == 1 ) {
+              this->matrix_[v][edges] = 3;
+              this->matrix_[edges][v] = 3;
+            }
+          }
+        }
+      }
+    }
+    time = time + 1;
+    Profunidade_saida[v] = time;
+  }
+
+  f_out << "nodedef>name VARCHAR,label VARCHAR"<< std::endl;
+
+  for (int i = 0; i < this->size_; i++){
+   f_out << i+1 <<','<<  i+1 <<std::endl;
+  }
+  f_out << "edgedef>node1 VARCHAR,node2 VARCHAR,directed BOOLEAN,color VARCHAR"<< std::endl;
+
+
+  for (int i = 0; i < this->getSize(); i++){
+    for (int j = i; j < this->getSize(); j++){
+      if (this->matrix_[i][j] == 2){
+        f_out << i+1 <<','<< j+1 <<",false"<<",'0,0,255'"<< std::endl;
+        this->matrix_[i][j] = 1;
+        this->matrix_[j][i] = 1;
+      }
+      if (this->matrix_[i][j] == 3){
+        f_out << i+1 <<','<< j+1 <<",false"<<",'255,0,0'"<< std::endl;
+        this->matrix_[i][j] = 1;
+        this->matrix_[j][i] = 1;
+      }
+    }
   }
 }
 
 void Grafo::bfs( const int& edge ) {
   
   std::queue<int> fila;
-  int Times[this->size_] = {0};
-  int Nivel[this->size_] = {0};
-  int Pai[this->size_] = {0};
+  int Times[this->size_];
+  int Nivel[this->size_];
+  int Pai[this->size_];
+
+  for ( int i = 0; i < this->size_; ++i ) {
+    Times[i] = 0;
+  }
+
+  for ( int i = 0; i < this->size_; ++i ) {
+    Nivel[i] = 0;
+  }
+
+  for ( int i = 0; i < this->size_; ++i ) {
+    Pai[i] = 0;
+  }
 
   int time = 1;
   fila.push(edge);
@@ -73,18 +158,22 @@ void Grafo::bfs( const int& edge ) {
 
   while (!fila.empty()){
     v = fila.front();
+
     fila.pop();
 
     for ( int edges : this->adj_[v] ) {
       if (Times[edges] == 0){
         if (this->matrix_[v][edges] == 1){
+          std::cout << "entrou no 2" << std::endl;
           this->matrix_[v][edges] = 2;
           this->matrix_[edges][v] = 2;
         }
         
-        fila.push(edges);
         time = time + 1;
         Times[edges] = time;
+        Pai[edges] = v;
+        Nivel[edges] = Nivel[v] + 1;
+        fila.push(edges);
       }else{
         if (Nivel[v] == Nivel[edges]){
           if(Pai[v] == Pai[edges]){
@@ -102,7 +191,7 @@ void Grafo::bfs( const int& edge ) {
         }else{
           if (Nivel[edges] == Nivel[v]+1){
             if (this->matrix_[v][edges] == 1){
-              this->matrix_[v][edges] = 5;
+              this->matrix_[v][edges] =    5;
               this->matrix_[edges][v] = 5;
             }
           }
@@ -131,7 +220,7 @@ void Grafo::bfs( const int& edge ) {
         this->matrix_[j][i] = 1;
       }
       if (this->matrix_[i][j] == 4){
-        f_out << i+1 <<','<< j+1 <<",false"<<",'0,255,255'"<< std::endl;
+        f_out << i+1 <<','<< j+1 <<",false"<<",'255,255,0'"<< std::endl;
         this->matrix_[i][j] = 1;
         this->matrix_[j][i] = 1;
       }

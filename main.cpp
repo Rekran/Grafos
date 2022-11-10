@@ -5,9 +5,11 @@ int main() {
 
     Grafo test = Grafo("arquivo.txt");
     
-   test.bfs(0);
+//    test.bfs(0);
 
-    test.showMatrix();
+   test.dfs(0);
+
+    // test.showMatrix();
    
     return 0;
 } 
