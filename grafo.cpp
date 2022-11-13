@@ -32,6 +32,9 @@ Grafo::Grafo( const string& file ) {
       this->matrix_.push_back(line);
     }
 
+    for ( int i = 0; i < this->getSize(); ++ i ){
+      this->eccentricity_.push_back(-1);
+    }
 
     for ( int i = 0; i < this->getSize(); ++ i ) {
       for ( int j = 0; j < this->getSize(); ++j ) {
@@ -69,7 +72,7 @@ void Grafo::busca( const int& v, int* PE, int* PS, int* Pai ) {
   PS[v] = time;
 }
 
-void Grafo::dfs( const int& edge ) {
+void Grafo::dfstoFile( const int& edge ) {
   std::stack<int> pilha;
 
   int Profunidade_entrada[this->size_];
@@ -94,11 +97,11 @@ void Grafo::dfs( const int& edge ) {
   pilha.push(edge);
 
   std::ofstream f_out;
-  f_out.open("teste.gdf");
-  if(! f_out.good())
-    cout << "Falha ao criar o arquivo!"<< std::endl;
-  else 
-    cout << "Arquivo criado!"<< std::endl;
+  f_out.open("teste_dfs.gdf");
+  //if(! f_out.good())
+  //  cout << "Falha ao criar o arquivo!"<< std::endl;
+  //else 
+  //  cout << "Arquivo criado!"<< std::endl;
 
   this->busca( edge, Profunidade_entrada, Profunidade_saida, Pai );
 
@@ -126,7 +129,7 @@ void Grafo::dfs( const int& edge ) {
   }
 }
 
-void Grafo::bfs( const int& edge ) {
+void Grafo::bfstoFile( const int& edge ) {
   
   std::queue<int> fila;
   int Times[this->size_];
@@ -153,11 +156,11 @@ void Grafo::bfs( const int& edge ) {
   int v = 0 ;
 
   std::ofstream f_out;
-  f_out.open("teste.gdf");
-  if(! f_out.good())
-    cout << "Falha ao criar o arquivo!"<< std::endl;
-  else 
-    cout << "Arquivo criado!"<< std::endl;
+  f_out.open("teste_bfs.gdf");
+  //if(! f_out.good())
+  //  cout << "Falha ao criar o arquivo!"<< std::endl;
+  //else 
+  //  cout << "Arquivo criado!"<< std::endl;
 
   while (!fila.empty()){
     v = fila.front();
@@ -167,7 +170,6 @@ void Grafo::bfs( const int& edge ) {
     for ( int edges : this->adj_[v] ) {
       if (Times[edges] == 0){
         if (this->matrix_[v][edges] == 1){
-          std::cout << "entrou no 2" << std::endl;
           this->matrix_[v][edges] = 2;
           this->matrix_[edges][v] = 2;
         }
@@ -234,10 +236,116 @@ void Grafo::bfs( const int& edge ) {
       }
     }
   }
+  if (this->eccentricity_[edge] == -1){
+    int max = 0;
+    for ( int i : Nivel ){
+      if (i> max){
+        max = i;
+      }
+    }
+    this->eccentricity_[edge] = max;
+  }
   
 
 }  
 
+void Grafo::bfs( const int& edge ) {
+  
+  std::queue<int> fila;
+  int Times[this->size_];
+  int Nivel[this->size_];
+  int Pai[this->size_];
+
+  for ( int i = 0; i < this->size_; ++i ) {
+    Times[i] = 0;
+  }
+
+  for ( int i = 0; i < this->size_; ++i ) {
+    Nivel[i] = 0;
+  }
+
+  for ( int i = 0; i < this->size_; ++i ) {
+    Pai[i] = 0;
+  }
+
+  int time = 1;
+  fila.push(edge);
+  
+  Times[edge] = time;
+
+  int v = 0 ;
+
+  while (!fila.empty()){
+    v = fila.front();
+
+    fila.pop();
+
+    for ( int edges : this->adj_[v] ) {
+      if (Times[edges] == 0){
+        if (this->matrix_[v][edges] == 1){
+          this->matrix_[v][edges] = 2;
+          this->matrix_[edges][v] = 2;
+        }
+        
+        time = time + 1;
+        Times[edges] = time;
+        Pai[edges] = v;
+        Nivel[edges] = Nivel[v] + 1;
+        fila.push(edges);
+      }else{
+        if (Nivel[v] == Nivel[edges]){
+          if(Pai[v] == Pai[edges]){
+            if (this->matrix_[v][edges] == 1){
+              this->matrix_[v][edges] = 3;
+              this->matrix_[edges][v] = 3;
+            }
+          }else{
+            if (this->matrix_[v][edges] == 1){
+              this->matrix_[v][edges] = 4;
+              this->matrix_[edges][v] = 4;
+            }
+          }
+          
+        }else{
+          if (Nivel[edges] == Nivel[v]+1){
+            if (this->matrix_[v][edges] == 1){
+              this->matrix_[v][edges] =    5;
+              this->matrix_[edges][v] = 5;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (this->eccentricity_[edge] == -1){
+    int max = 0;
+    for ( int i : Nivel ){
+      if (i> max){
+        max = i;
+      }
+    }
+    this->eccentricity_[edge] = max;
+  }
+}
+
+void Grafo::calcEccentricity( void ){
+  for (int i = 0; i < this->getSize(); i++){
+    if (this->eccentricity_[i] == -1){
+      this->bfs(i);
+    }
+  }
+}
+
+int Grafo::diametre( void ){
+  this->calcEccentricity();
+  return *std::max_element(this->eccentricity_.begin(),this->eccentricity_.end());
+}
+
+int Grafo::raio( void ){
+  this->calcEccentricity();
+  return *std::min_element(this->eccentricity_.begin(),this->eccentricity_.end());
+}
 
 void Grafo::showAdjacency( const int& edge ) {
   

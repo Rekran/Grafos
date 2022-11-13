@@ -3,17 +3,13 @@
 
 int main() {
 
-    Grafo test = Grafo("graph_2.txt");
+    Grafo test = Grafo("graph_13.txt");
     
-   test.bfs(0);
+    test.bfstoFile(0);
+    test.dfstoFile(0);
 
-    // test.showAdjacency();
-
-    // test.showMatrix();
-
-   test.dfs(0);
-
-    // test.showMatrix();
-   
+    std::cout<< "Raio: "<< test.raio() << std::endl;
+    std::cout<< "Diametro: " << test.diametre() << std::endl;
+    
     return 0;
 } 
