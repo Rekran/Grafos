@@ -44,7 +44,7 @@ Grafo::Grafo( const string& file ) {
 }
 
 void Grafo::busca( const int& v, int* PE, int* PS, int* Pai ) {
-  static int time = time + 1;
+  static int time = 1;
   PE[v] = time;
 
   for ( int edges : this->adj_[v] ) {
@@ -70,8 +70,6 @@ void Grafo::busca( const int& v, int* PE, int* PS, int* Pai ) {
 }
 
 void Grafo::dfs( const int& edge ) {
-  std::stack<int> pilha;
-
   int Profunidade_entrada[this->size_];
   int Profunidade_saida[this->size_];
   int Pai[this->size_];
@@ -90,8 +88,6 @@ void Grafo::dfs( const int& edge ) {
 
   int v = 0;
   int time = 0;
-
-  pilha.push(edge);
 
   std::ofstream f_out;
   f_out.open("teste.gdf");
