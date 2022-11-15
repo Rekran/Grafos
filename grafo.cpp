@@ -47,7 +47,7 @@ Grafo::Grafo( const string& file ) {
 }
 
 void Grafo::busca( const int& v, int* PE, int* PS, int* Pai ) {
-  static int time = time + 1;
+  static int time = 1;
   PE[v] = time;
 
   for ( int edges : this->adj_[v] ) {

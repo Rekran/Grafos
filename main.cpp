@@ -1,7 +1,17 @@
 #include "grafo.h"
 
+/*
+    Universidade Federal da Paraíba
+    Trabalho da disciplina de Grafos
+    Tema: Busca em Grafos
+    Linguagem Utilizada: C++.
+    Desenvolvido por:
+    
+        Arthur Ricardo, 20170033039
+        Danilo Henrique, 20170140478
+*/
 
-int main() {
+int main( void ) {
 
     Grafo test = Grafo("graph_13.txt");
     
